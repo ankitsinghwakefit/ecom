@@ -4,6 +4,7 @@ export default createStore({
   state: () => ({
     products: [],
     cart: [],
+    productCategories: [],
     limit: 30,
     productsApiCallCount: 1,
   }),
@@ -11,6 +12,7 @@ export default createStore({
     getAllProducts: state => state.products,
     getCartProducts: state => state.cart,
     getCartTotal: (state) => state.cart.reduce((total, item) => total + item.price * item.quantity, 0),
+    getProductCategories: state => state.productCategories,
   },
   actions: {
     addProduct({ commit }, data) {
@@ -27,6 +29,9 @@ export default createStore({
     },
     removeCartProduct({ commit }, productId) {
       commit('REMOVE_PRODUCT_FROM_CART', productId)
+    },
+    addProductCategories({ commit }, categories) {
+      commit('ADD_PRODUCT_CATEGORIES', categories)
     }
   },
   mutations: {
@@ -56,5 +61,8 @@ export default createStore({
         state.cart = state.cart.filter((p) => p.id !== productId);
       }
     },
+    ADD_PRODUCT_CATEGORIES(state, categories) {
+      state.productCategories = categories
+    }
   }
 })
