@@ -1,4 +1,9 @@
 <template>
+    <nav class="navbar">
+        <h2>ShopNow</h2>
+        <RouterLink to="/">Products</RouterLink>
+        <RouterLink to="/cart">Cart - {{ getCartProductsCount }}</RouterLink>
+    </nav>
 <div class="container">
         <h1>Our Products</h1>
         <div class="search-box">
@@ -7,33 +12,23 @@
         </div>
         <div class="products">
             <div class="product-card" v-for="product in products" :key="product.id">
-                <img :src="product.thumbnail" alt="Product Image" />
+                <img :src="product.thumbnail" :alt="product.title" />
                 <h2 class="product-title">{{ product.title }}</h2>
                 <p class="product-price">${{ product.price }}</p>
-                <a href="#" class="btn">Add to Cart</a>
+                <button @click="addProductInCart(product)" class="btn">Add to Cart</button>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { onMounted,computed } from 'vue'
+import { computed } from 'vue'
 import { useStore } from 'vuex'
 
-// const getProductImage = computed((product)=>{
-//     return product.images[0];
-// })
-
 const store = useStore()
-const addProductInCart = (products) => store.dispatch('addProductInCart', products)
+const addProductInCart = (product) => store.dispatch('addProductInCart', product)
 const products = computed(() => store.getters.getAllProducts)
-const getCart = computed(() => store.getters.getCart)
-// defineProps({
-//   msg: {
-//     type: String,
-//     required: true,
-//   },
-// })
+const getCartProductsCount = computed(() => store.getters.getCartProducts.length);
 </script>
 
 <style scoped>
@@ -54,6 +49,21 @@ const getCart = computed(() => store.getters.getCart)
         h1 {
             text-align: center;
             margin-bottom: 20px;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .navbar h2 {
+            color: #333;
+        }
+        .cart-icon {
+            width: 30px;
+            cursor: pointer;
         }
         .search-box {
             display: flex;

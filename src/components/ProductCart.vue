@@ -2,31 +2,21 @@
   <div class="container">
         <h1>Shopping Cart</h1>
         <div class="cart">
-            <CartItem />
-            <div class="cart-item">
-                <img src="https://cdn.dummyjson.com/products/images/beauty/Red%20Lipstick/thumbnail.png" alt="Product Image">
-                <div class="item-details">
-                    <p class="item-title">Product 2</p>
-                </div>
-                <div class="cart-info">
-                    <p class="item-price">$39.99</p>
-                    <div class="quantity">
-                        <button>-</button>
-                        <span>1</span>
-                        <button>+</button>
-                    </div>
-                    <p class="total-price">$39.99</p>
-                </div>
-                <button class="remove-btn">Remove</button>
-            </div>
-            <div class="cart-summary">Total: $69.98</div>
+            <CartItem :products="cartProducts" />
+            <div class="cart-summary">Total: ${{cartTotal}}</div>
             <button class="checkout-btn">Proceed to Checkout</button>
         </div>
     </div>
 </template>
 
 <script setup>
+import {computed} from 'vue';
 import CartItem from './CartItem.vue';
+import { useStore } from 'vuex'
+
+const store = useStore()
+const cartProducts = computed(() => store.getters.getCartProducts);
+const cartTotal = computed(() => store.getters.getCartTotal);
 </script>
 
 <style scoped>

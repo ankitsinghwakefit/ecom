@@ -1,23 +1,32 @@
 <template>
-    <div class="cart-item">
-        <img src="https://cdn.dummyjson.com/products/images/beauty/Red%20Lipstick/thumbnail.png" alt="Product Image">
+    <div class="cart-item" v-for="product in products" :key="product.id">
+        <img :src="product.thumbnail" :alt="product.title">
         <div class="item-details">
-            <p class="item-title">Product 1</p>
+            <p class="item-title">{{ product.title }}</p>
         </div>
         <div class="cart-info">
-            <p class="item-price">$29.99</p>
+            <p class="item-price">${{ product.price }}</p>
             <div class="quantity">
-                <button>-</button>
-                <span>1</span>
-                <button>+</button>
+                <button @click="decreaseProductCount(product)">-</button>
+                <span>{{ product.quantity }}</span>
+                <button @click="increaseProductCount(product)">+</button>
             </div>
-            <p class="total-price">$29.99</p>
+            <p class="total-price">${{ product.price * product.quantity}}</p>
         </div>
-        <button class="remove-btn">Remove</button>
+        <button class="remove-btn" @click="removeCartItem(product)">Remove</button>
     </div>
 </template>
 
 <script setup>
+const props = defineProps(['products'])
+//defineEmits(['increaseProductCount'])
+console.log(props.products)
+import { useStore } from 'vuex'
+
+const store = useStore()
+const increaseProductCount = (product) => store.dispatch('increaseCartQuantity', product.id);
+const decreaseProductCount = (product) => store.dispatch('decreaseCartQuantity', product.id);
+const removeCartItem = (product) => store.dispatch('removeCartProduct', product.id);
 
 </script>
 

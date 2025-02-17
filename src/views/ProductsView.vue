@@ -1,12 +1,4 @@
 <template>
-  <!-- <div>
-    <h1>Home</h1>
-    <p>Welcome to the Home page</p>
-    <button @click="addProduct">addProduct</button>
-    <button @click="addProductInCart">addProductInCart</button>
-    <pre>products: {{ products }}</pre>
-    <p>{{ getCart }}</p>
-  </div> -->
   <ProductCard />
 </template>
 
@@ -24,7 +16,7 @@ const getCart = computed(() => store.getters.getCart)
 const limit = computed(()=> store.getters.getLimit)
 onMounted(async () => {
   try{
-    let data = await axios.get('https://dummyjson.com/products');
+    let data = await axios.get('https://dummyjson.com/products?limit=20');
     console.log(data.data.products);
     addProduct(data.data.products);
     console.log(products);
