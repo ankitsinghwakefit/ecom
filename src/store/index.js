@@ -3,11 +3,15 @@ import { createStore } from 'vuex'
 export default createStore({
   state: () => ({
     products: [],
-    cart: []
+    cart: [],
+    limit: 30,
+    productsApiCallCount: 1,
   }),
   getters: {
     getAllProducts: state => state.products,
-    getCart: state => state.cart
+    getCart: state => state.cart,
+    getLimit: state => state.limit,
+    getProductsApiCallCount: state => state.productsApiCallCount,
   },
   actions: {
     addProduct({ commit }, data) {

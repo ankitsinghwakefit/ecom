@@ -21,6 +21,7 @@ const addProduct = (products) => store.dispatch('addProduct', products)
 const addProductInCart = (products) => store.dispatch('addProductInCart', products)
 const products = computed(() => store.getters.getAllProducts)
 const getCart = computed(() => store.getters.getCart)
+const limit = computed(()=> store.getters.getLimit)
 onMounted(async () => {
   try{
     let data = await axios.get('https://dummyjson.com/products');

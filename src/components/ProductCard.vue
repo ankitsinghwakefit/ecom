@@ -1,6 +1,10 @@
 <template>
 <div class="container">
         <h1>Our Products</h1>
+        <div class="search-box">
+            <input type="text" placeholder="Search for products...">
+            <button>Search</button>
+        </div>
         <div class="products">
             <div class="product-card" v-for="product in products" :key="product.id">
                 <img :src="product.thumbnail" alt="Product Image" />
@@ -51,9 +55,34 @@ const getCart = computed(() => store.getters.getCart)
             text-align: center;
             margin-bottom: 20px;
         }
+        .search-box {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            width: 60%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px 0 0 5px;
+            font-size: 16px;
+        }
+        .search-box button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .search-box button:hover {
+            background-color: #218838;
+        }
         .products {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 20px;
         }
         .product-card {
@@ -63,6 +92,8 @@ const getCart = computed(() => store.getters.getCart)
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
             transition: transform 0.3s;
+            flex: 1 1 250px;
+            max-width: 300px;
         }
         .product-card:hover {
             transform: scale(1.05);
