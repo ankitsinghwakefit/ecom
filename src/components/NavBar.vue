@@ -5,11 +5,12 @@
                 <h1>VENIA</h1>
                 <RouterLink to="/">Products</RouterLink>
                 <div class="dropdown">
-            <button class="dropbtn">Categories</button>
-            <div class="dropdown-content">
-                <button v-for="categories in getCategories" :key="categories.slug" @click="getCategProducts(categories.url)">{{categories.name}}</button>
-            </div>
-        </div>
+                    <button class="dropbtn">Categories</button>
+                    <div class="dropdown-content">
+                        <button v-for="categories in getCategories" :key="categories.slug"
+                            @click="getCategProducts(categories.url)">{{ categories.name }}</button>
+                    </div>
+                </div>
                 <div class="cart-container">
                     <router-link to="/cart">
                         🛒 <span v-if="cartProductsCount > 0">({{ cartProductsCount }})</span>
@@ -29,7 +30,7 @@ import { useStore } from 'vuex'
 const store = useStore()
 const cartProductsCount = computed(() => store.getters.getCartProducts.length);
 const getCategories = computed(() => store.getters.getProductCategories);
-const getCategProducts = async(url) => {
+const getCategProducts = async (url) => {
     const products = await axios.get(url);
     store.dispatch('addProduct', products.data.products)
 }
@@ -102,7 +103,7 @@ nav a:first-of-type {
     overflow: hidden;
     flex-direction: column;
     max-height: 250px;
-    overflow-y: auto; 
+    overflow-y: auto;
 }
 
 .dropdown-content button {

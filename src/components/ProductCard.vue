@@ -1,17 +1,10 @@
 <template>
-    <div class="container">
-        <h1>Our Products</h1>
-        <div class="search-box">
-            <input type="text" placeholder="Search for products...">
-            <button>Search</button>
-        </div>
-        <div class="products">
-            <div class="product-card" v-for="product in products" :key="product.id">
-                <img :src="product.thumbnail" :alt="product.title" />
-                <h2 class="product-title">{{ product.title }}</h2>
-                <p class="product-price">${{ product.price }}</p>
-                <button @click="addProductInCart(product)" class="btn">Add to Cart</button>
-            </div>
+    <div class="products">
+        <div class="product-card" v-for="product in products" :key="product.id">
+            <img :src="product.thumbnail" :alt="product.title" />
+            <h2 class="product-title">{{ product.title }}</h2>
+            <p class="product-price">${{ product.price }}</p>
+            <button @click="addProductInCart(product)" class="btn">Add to Cart</button>
         </div>
     </div>
 </template>
@@ -26,61 +19,11 @@ const products = computed(() => store.getters.getAllProducts)
 </script>
 
 <style scoped>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
-
-body {
-    background-color: #f8f8f8;
-}
-
-.container {
-    width: 90%;
-    margin: auto;
-    padding: 20px 0;
-}
-
-h1 {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.search-box {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 40px;
-}
-
-.search-box input {
-    width: 60%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px 0 0 5px;
-    font-size: 16px;
-}
-
-.search-box button {
-    padding: 10px 15px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 0 5px 5px 0;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.search-box button:hover {
-    background-color: #218838;
-}
-
 .products {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
     gap: 20px;
+    width: 75%;
 }
 
 .product-card {
@@ -128,5 +71,17 @@ h1 {
 
 .btn:hover {
     background: #e64a19;
+}
+
+.content {
+    display: flex;
+    gap: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .products {
+        width: 100%;
+    }
 }
 </style>
