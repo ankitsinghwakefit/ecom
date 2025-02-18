@@ -3,6 +3,7 @@
         <div class="product-card" v-for="product in products" :key="product.id">
             <img :src="product.thumbnail" :alt="product.title"  @click="openProductModal(product)" loading="lazy"/>
             <h2 class="product-title" @click="openProductModal(product)">{{ product.title }}</h2>
+            <p class="product-description" @click="openProductModal(product)">{{ getDescription(product.description) }}</p>
             <p class="product-price" @click="openProductModal(product)">${{ product.price }}</p>
             <button @click="addProductInCart(product)" class="btn">Add to Cart</button>
         </div>
@@ -29,6 +30,9 @@ const openProductModal = (product) => {
 }
 const addProductInCart = (product) => store.dispatch('addProductInCart', product)
 const products = computed(() => store.getters.getAllProducts)
+const getDescription = ((description)=> {
+    return description.substring(0,70) + '...';
+})
 </script>
 
 <style scoped>
