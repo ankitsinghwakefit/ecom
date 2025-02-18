@@ -1,10 +1,9 @@
 <template>
     <div class="products">
-        <div v-if="products.length == 0">Please wait, we are loading products...</div>
-        <div class="product-card" v-for="product in products" :key="product.id" @click="openProductModal(product)">
-            <img :src="product.thumbnail" :alt="product.title" />
-            <h2 class="product-title">{{ product.title }}</h2>
-            <p class="product-price">${{ product.price }}</p>
+        <div class="product-card" v-for="product in products" :key="product.id">
+            <img :src="product.thumbnail" :alt="product.title"  @click="openProductModal(product)"/>
+            <h2 class="product-title" @click="openProductModal(product)">{{ product.title }}</h2>
+            <p class="product-price" @click="openProductModal(product)">${{ product.price }}</p>
             <button @click="addProductInCart(product)" class="btn">Add to Cart</button>
         </div>
         <ProductModal 
@@ -25,10 +24,8 @@ const store = useStore()
 const isModalOpen = ref(false)
 const productDetails = ref(null)
 const openProductModal = (product) => {
-    console.log("isModalOpen.value", isModalOpen.value)
     productDetails.value = product
     isModalOpen.value = true;
-
 }
 const addProductInCart = (product) => store.dispatch('addProductInCart', product)
 const products = computed(() => store.getters.getAllProducts)

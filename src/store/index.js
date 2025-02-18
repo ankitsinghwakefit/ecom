@@ -15,11 +15,14 @@ export default createStore({
     getProductCategories: state => state.productCategories,
   },
   actions: {
-    addProduct({ commit }, data) {
-      commit('ADD_PRODUCT', data)
+    addProduct({ commit }, productsData) {
+      commit('ADD_PRODUCT', productsData)
     },
-    addProductInCart({ commit }, data) {
-      commit('ADD_PRODUCT_IN_CART', data)
+    addMoreProduct({ commit }, productsData) {
+      commit('ADD_MORE_PRODUCT', productsData)
+    },
+    addProductInCart({ commit }, product) {
+      commit('ADD_PRODUCT_IN_CART', product)
     },
     increaseCartQuantity({ commit }, productId) {
       commit('INCREASE_CART_QUANTITY', productId)
@@ -35,8 +38,11 @@ export default createStore({
     }
   },
   mutations: {
-    ADD_PRODUCT(state, data) {
-      state.products = data
+    ADD_PRODUCT(state, productsData) {
+      state.products = productsData
+    },
+    ADD_MORE_PRODUCT(state,data){
+      state.products = [...state.products, ...data]
     },
     ADD_PRODUCT_IN_CART(state, product) {
       const item = state.cart.find((prod) => prod.id === product.id);

@@ -22,7 +22,7 @@
     isOpen: Boolean,
   });
   
-  const emit = defineEmits(['close', 'add-to-cart']);
+  const emit = defineEmits(['close']);
   
   const closeModal = () => {
     emit('close');

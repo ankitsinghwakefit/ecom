@@ -6,14 +6,19 @@
       <button @click="getSearchProducts">Search</button>
     </div>
     <div class="content">
+      <div v-if="isErrorMsg">Error while fetching products, please check your Internet connection...</div>
+      <div v-if="products.length == 0 && !isErrorMsg">Please wait, we are loading products...</div>
       <ProductCard />
       <FilterCard />
+    </div>
+    <div class="load-more-container" v-if="products.length>0">
+      <button class="load-more-btn" @click="fetchMoreProducts">Load more Products..</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useStore } from 'vuex'
 import axios from 'axios';
 const store = useStore()
@@ -23,23 +28,45 @@ import FilterCard from '@/components/FilterCard.vue';
 const searchKey = defineModel()
 const addProducts = (products) => store.dispatch('addProduct', products)
 const addProductCategories = (categories) => store.dispatch('addProductCategories', categories)
+const isErrorMsg = ref('')
+const productLimit = ref(10);
+const skipProduct = ref(10);
+const products = computed(() => store.getters.getAllProducts)
+const fetchMoreProducts = async () => {
+  try {
+    const searchProducts = await axios.get(`https://dummyjson.com/products?limit=${productLimit.value}&skip=${skipProduct.value}`);
+    store.dispatch('addMoreProduct', searchProducts.data.products);
+    skipProduct.value = skipProduct.value + productLimit.value;
+    isErrorMsg.value = ''
+  } catch (error) {
+    const message = error.message;
+    isErrorMsg.value = message;
+  }
+}
 const getSearchProducts = async () => {
-  if (searchKey.value.length > 3) {
-    const searchProducts = await axios.get(`https://dummyjson.com/products/search?q=${searchKey.value}`)
-    store.dispatch('addProduct', searchProducts.data.products);
-  } else {
-    return;
+  try {
+    if (searchKey.value.length > 3) {
+      const searchProducts = await axios.get(`https://dummyjson.com/products/search?q=${searchKey.value}`)
+      store.dispatch('addProduct', searchProducts.data.products);
+      isErrorMsg.value = ''
+    } else {
+      return;
+    }
+  } catch (error) {
+    const message = error.message;
+    isErrorMsg.value = message;
   }
 }
 onMounted(async () => {
   try {
-    const products = await axios.get('https://dummyjson.com/products?limit=20');
+    const products = await axios.get('https://dummyjson.com/products?limit=10');
     const productsCategories = await axios.get('https://dummyjson.com/products/categories')
     addProducts(products.data.products);
     addProductCategories(productsCategories.data)
+    isErrorMsg.value = ''
   } catch (error) {
     const message = error.message;
-    console.log(message);
+    isErrorMsg.value = message;
   }
 })
 </script>
@@ -99,6 +126,28 @@ h1 {
   display: flex;
   gap: 20px;
 }
+
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.load-more-btn {
+  padding: 12px 20px;
+  background: #ff5733;
+  color: white;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: 0.3s ease;
+}
+
+.load-more-btn:hover {
+  background: #e64a19;
+}
+
 
 @media (max-width: 768px) {
   .content {
