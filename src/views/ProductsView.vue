@@ -7,7 +7,7 @@
     </div>
     <div class="content">
       <div v-if="isErrorMsg">Error while fetching products, please check your Internet connection...</div>
-      <div v-if="products.length == 0 && !isErrorMsg">Please wait, we are loading products...</div>
+      <div v-if="products.length == 0 && !isErrorMsg">{{ productLoadingMsg }}</div>
       <ProductCard />
       <FilterCard />
     </div>
@@ -29,6 +29,7 @@ const searchKey = defineModel()
 const addProducts = (products) => store.dispatch('addProduct', products)
 const addProductCategories = (categories) => store.dispatch('addProductCategories', categories)
 const isErrorMsg = ref('')
+const productLoadingMsg = ref('Please wait we are loading the product...');
 const productLimit = ref(10);
 const skipProduct = ref(10);
 const products = computed(() => store.getters.getAllProducts)
@@ -47,6 +48,9 @@ const getSearchProducts = async () => {
   try {
     if (searchKey.value.length > 3) {
       const searchProducts = await axios.get(`https://dummyjson.com/products/search?q=${searchKey.value}`)
+      if(searchProducts.data.products.length == 0){
+        productLoadingMsg.value = 'No products found with this search key...'
+      }
       store.dispatch('addProduct', searchProducts.data.products);
       isErrorMsg.value = ''
     } else {
@@ -59,9 +63,14 @@ const getSearchProducts = async () => {
 }
 onMounted(async () => {
   try {
-    const products = await axios.get('https://dummyjson.com/products?limit=10');
+    // below condition will not fetch data again if coming to products page from cart page
+    if(products.value.length > 0){
+      console.log('products already loaded');
+      return;
+    }
+    const storeProducts = await axios.get('https://dummyjson.com/products?limit=10');
     const productsCategories = await axios.get('https://dummyjson.com/products/categories')
-    addProducts(products.data.products);
+    addProducts(storeProducts.data.products);
     addProductCategories(productsCategories.data)
     isErrorMsg.value = ''
   } catch (error) {
