@@ -1,7 +1,7 @@
 <template>
     <div class="products">
         <div class="product-card" v-for="product in products" :key="product.id">
-            <img :src="product.thumbnail" :alt="product.title"  @click="openProductModal(product)"/>
+            <img :src="product.thumbnail" :alt="product.title"  @click="openProductModal(product)" loading="lazy"/>
             <h2 class="product-title" @click="openProductModal(product)">{{ product.title }}</h2>
             <p class="product-price" @click="openProductModal(product)">${{ product.price }}</p>
             <button @click="addProductInCart(product)" class="btn">Add to Cart</button>
