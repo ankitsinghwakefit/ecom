@@ -1,19 +1,35 @@
 <template>
     <div class="products">
-        <div class="product-card" v-for="product in products" :key="product.id">
+        <div v-if="products.length == 0">Please wait, we are loading products...</div>
+        <div class="product-card" v-for="product in products" :key="product.id" @click="openProductModal(product)">
             <img :src="product.thumbnail" :alt="product.title" />
             <h2 class="product-title">{{ product.title }}</h2>
             <p class="product-price">${{ product.price }}</p>
             <button @click="addProductInCart(product)" class="btn">Add to Cart</button>
         </div>
+        <ProductModal 
+            v-if="isModalOpen"
+            :product="productDetails"
+            :isOpen="isModalOpen"
+            @close="isModalOpen = false"
+            />
     </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
+import ProductModal from './ProductModal.vue'
 
 const store = useStore()
+const isModalOpen = ref(false)
+const productDetails = ref(null)
+const openProductModal = (product) => {
+    console.log("isModalOpen.value", isModalOpen.value)
+    productDetails.value = product
+    isModalOpen.value = true;
+
+}
 const addProductInCart = (product) => store.dispatch('addProductInCart', product)
 const products = computed(() => store.getters.getAllProducts)
 </script>

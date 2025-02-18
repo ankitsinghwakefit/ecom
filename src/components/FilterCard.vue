@@ -13,6 +13,11 @@
             <label><input type="radio" name="price" @change="selectPriceRange('desc')">High to Low</label>
         </div>
 
+        <div class="filter-group">
+            <h4>Sort by Name</h4>
+            <label><input type="radio" name="title" @change="selectNameSort('title')">By Name</label>
+        </div>
+
         <button class="apply-filter" @click="getSearchProducts">Apply Filter</button>
     </aside>
 </template>
@@ -27,6 +32,7 @@ const store = useStore()
 // it only supports single category at a time otherwise multiple categories can be stored in an array
 const selectedCategories = ref('');
 const selectedPriceRange = ref('asc');
+const selectedNameSort = ref('');
 const getCategories = computed(() => store.getters.getProductCategories);
 const toggleCategory = (category) => {
     selectedCategories.value = category;
@@ -34,8 +40,16 @@ const toggleCategory = (category) => {
 const selectPriceRange = (range) => {
     selectedPriceRange.value = range;
 };
+const selectNameSort = (name) => {
+    selectedNameSort.value = name;
+}
 const getSearchProducts = async () => {
     if (selectedCategories.value.length > 0) {
+        if(selectedNameSort.value){
+            const searchProducts = await axios.get(`https://dummyjson.com/products/category/${selectedCategories.value}?sortBy=${selectedNameSort.value}&order=${selectedPriceRange.value}`)
+            store.dispatch('addProduct', searchProducts.data.products);
+            return;
+        }
         const searchProducts = await axios.get(`https://dummyjson.com/products/category/${selectedCategories.value}?sortByorder=${selectedPriceRange.value}`)
         store.dispatch('addProduct', searchProducts.data.products);
     } else {
