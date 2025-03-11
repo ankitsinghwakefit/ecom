@@ -9,13 +9,8 @@
 
         <div class="filter-group">
             <h4>Price Range</h4>
-            <label><input type="radio" name="price" @change="selectPriceRange('asc')">Low to High</label>
-            <label><input type="radio" name="price" @change="selectPriceRange('desc')">High to Low</label>
-        </div>
-
-        <div class="filter-group">
-            <h4>Sort by Name</h4>
-            <label><input type="radio" name="title" @change="selectNameSort('title')">By Name</label>
+            <label><input type="radio" name="price" @change="handlePriceSortType('asc')">Low to High</label>
+            <label><input type="radio" name="price" @change="handlePriceSortType('desc')">High to Low</label>
         </div>
 
         <button class="apply-filter" @click="getSearchProducts">Apply Filter</button>
@@ -26,12 +21,12 @@
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
 const store = useStore()
+const emit = defineEmits(['cleanFilteredProducts'])
 
 const addFilteredProducts = (filteredProducts) => store.dispatch('addFilteredProduct',filteredProducts);
 const resetPeginationIndex = (value) => store.dispatch('resetPeginationIndex',value);
 const selectedCategories = ref([]);
-const selectedPriceRange = ref('asc');
-const selectedNameSort = ref('');
+const priceSortOrder = ref('asc');
 const getCategories = computed(() => store.getters.getProductCategories);
 const getAllProducts = computed(() => store.getters.getAllProducts);
 
@@ -43,18 +38,22 @@ const toggleCategory = (category) => {
         selectedCategories.value.push(category);
     }
 };
-const selectPriceRange = (range) => {
-    selectedPriceRange.value = range;
+const handlePriceSortType = (range) => {
+    priceSortOrder.value = range;
 };
-const selectNameSort = (name) => {
-    selectedNameSort.value = name;
-}
+
 const getSearchProducts = async () => {
     if (selectedCategories.value.length > 0) {
         const filteredProductList = getAllProducts.value.filter(product => {
            return product.tags.some(tag => selectedCategories.value.includes(tag))
         })
+        if(priceSortOrder.value){
+            filteredProductList.sort((a, b) => {
+                return priceSortOrder.value === "asc" ? a.price - b.price : b.price - a.price;
+            });
+        }
         resetPeginationIndex(true);
+        emit('cleanFilteredProducts')
         addFilteredProducts(filteredProductList)
     } else {
         return;

@@ -7,18 +7,18 @@
     </div>
     <div class="content">
       <div v-if="isErrorMsg">Error while fetching products, please check your Internet connection...</div>
-      <div v-if="getProductSet().length == 0 && !isErrorMsg">{{ productLoadingMsg }}</div>
-      <ProductCard :products="getProductSet()" />
-      <FilterCard />
+      <div v-if="productsForRender.length == 0 && !isErrorMsg">{{ productLoadingMsg }}</div>
+      <ProductCard :products="productsForRender" />
+      <FilterCard @cleanFilteredProducts="cleanFilteredProducts" />
     </div>
-    <div class="load-more-container" v-if="getProductSet().length>0">
+    <div class="load-more-container" v-if="productsForRender.length>0">
       <button class="load-more-btn" @click="loadMoreProducts" :disabled="isLoadMoreDisabled">{{ buttonLabel }}</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, reactive } from 'vue'
 import { useStore } from 'vuex'
 const store = useStore()
 import ProductCard from '@/components/ProductCard.vue';
@@ -37,6 +37,14 @@ const resetPeginationIndex = (value) => store.dispatch('resetPeginationIndex',va
 const productCountIndex = ref(0);
 const buttonLabel = computed(()=>{
   return isLoadMoreDisabled.value ? 'No more product' : 'Load more Products'
+})
+const searchResults = reactive([]);
+const cleanFilteredProducts = () => {
+  console.log("done")
+  searchResults.value = [];
+}
+const productsForRender = computed(()=>{
+  return searchResults.value?.length ? searchResults.value : getProductSet();
 })
 const getProductSet = () => {
   if(!getProductsToRender.value.length){
@@ -62,34 +70,19 @@ const getProductSet = () => {
 }
 const getProductsToRender = computed(() => {
     if(filteredProducts.value.length > 0){
-      console.log("filteredProducts.value", filteredProducts.value)
         return filteredProducts.value
     } else {
         return allProducts.value;
     }
 })
 const loadMoreProducts = () => {
-  console.log("loadMoreProducts", productCountIndex.value)
   productCountIndex.value += 1;
-  console.log("loadMoreProducts", productCountIndex.value)
   getProductSet();
 }
-const getSearchProducts = async () => {
-  try {
-    if (searchKey.value.length > 3) {
-      const searchProducts = await fetch(`https://dummyjson.com/products/search?q=${searchKey.value}`)
-      if(searchProducts.data.products.length == 0){
-        productLoadingMsg.value = 'No products found with this search key...'
-      }
-      store.dispatch('addProduct', searchProducts.data.products);
-      isErrorMsg.value = ''
-    } else {
-      return;
-    }
-  } catch (error) {
-    const message = error.message;
-    isErrorMsg.value = message;
-  }
+const getSearchProducts = () => {
+  searchResults.value = getProductsToRender.value.filter(product => {
+    return product.title.toLowerCase().includes(searchKey.value.toLowerCase())
+  })
 }
 const getProductCategories = (products) => {
   const categories = [];
