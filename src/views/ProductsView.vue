@@ -7,12 +7,12 @@
     </div>
     <div class="content">
       <div v-if="isErrorMsg">Error while fetching products, please check your Internet connection...</div>
-      <div v-if="products.length == 0 && !isErrorMsg">{{ productLoadingMsg }}</div>
-      <ProductCard />
+      <div v-if="getProductSet().length == 0 && !isErrorMsg">{{ productLoadingMsg }}</div>
+      <ProductCard :products="getProductSet()" />
       <FilterCard />
     </div>
-    <div class="load-more-container" v-if="products.length>0">
-      <button class="load-more-btn" @click="fetchMoreProducts">Load more Products..</button>
+    <div class="load-more-container" v-if="getProductSet().length>0">
+      <button class="load-more-btn" @click="loadMoreProducts" :disabled="isLoadMoreDisabled">{{ buttonLabel }}</button>
     </div>
   </div>
 </template>
@@ -29,20 +29,52 @@ const addProducts = (products) => store.dispatch('addProduct', products)
 const addProductCategories = (categories) => store.dispatch('addProductCategories', categories)
 const isErrorMsg = ref('')
 const productLoadingMsg = ref('Please wait we are loading the product...');
-const productLimit = ref(10);
-const skipProduct = ref(10);
-const products = computed(() => store.getters.getAllProducts)
+const isLoadMoreDisabled = ref(false)
 const filteredProducts = computed(() => store.getters.getAllFilteredProducts)
-const fetchMoreProducts = async () => {
-  try {
-    const searchProducts = await fetch(`https://dummyjson.com/products?limit=${productLimit.value}&skip=${skipProduct.value}`);
-    store.dispatch('addMoreProduct', searchProducts.data.products);
-    skipProduct.value = skipProduct.value + productLimit.value;
-    isErrorMsg.value = ''
-  } catch (error) {
-    const message = error.message;
-    isErrorMsg.value = message;
-  }
+const allProducts = computed(() => store.getters.getAllProducts)
+const isResetPeginationIndex = computed(() => store.getters.getResetPeginationIndex)
+const resetPeginationIndex = (value) => store.dispatch('resetPeginationIndex',value);
+const productCountIndex = ref(0);
+const buttonLabel = computed(()=>{
+  return isLoadMoreDisabled.value ? 'No more product' : 'Load more Products'
+})
+const getProductSet = () => {
+  if(!getProductsToRender.value.length){
+    return [];
+  } else if(getProductsToRender.value.length<10){
+      isLoadMoreDisabled.value = true;
+        return getProductsToRender.value;
+    } else {
+      if(isResetPeginationIndex.value){
+        productCountIndex.value = 0;
+      }
+      let updatedIndex = productCountIndex.value === 0 ? 10 : productCountIndex.value*10;
+        updatedIndex = updatedIndex + (productCountIndex.value * 10);
+        resetPeginationIndex(false);
+      if(updatedIndex > getProductsToRender.value.length) {
+        console.log("disable button")
+        isLoadMoreDisabled.value = true;
+        console.log("disable button", isLoadMoreDisabled.value)
+        return getProductsToRender.value;
+      }
+      console.log("updatedIndex", updatedIndex)
+      isLoadMoreDisabled.value = false;
+      return getProductsToRender.value.slice(0,updatedIndex);
+    }
+}
+const getProductsToRender = computed(() => {
+    if(filteredProducts.value.length > 0){
+      console.log("filteredProducts.value", filteredProducts.value)
+        return filteredProducts.value
+    } else {
+        return allProducts.value;
+    }
+})
+const loadMoreProducts = () => {
+  console.log("loadMoreProducts", productCountIndex.value)
+  productCountIndex.value += 1;
+  console.log("loadMoreProducts", productCountIndex.value)
+  getProductSet();
 }
 const getSearchProducts = async () => {
   try {
@@ -76,7 +108,7 @@ const getProductCategories = (products) => {
 }
 
 onMounted(async () => {
-    if(products.value.length > 0){
+    if(getProductSet().length > 0){
       return;
     }
     fetch('https://dummyjson.com/products').then(data => data.json()).then((productsData => {
@@ -165,6 +197,17 @@ h1 {
 
 .load-more-btn:hover {
   background: #e64a19;
+}
+
+.load-more-btn:disabled {
+  padding: 12px 20px;
+  background: #eee;
+  cursor: not-allowed;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  transition: 0.3s ease;
 }
 
 

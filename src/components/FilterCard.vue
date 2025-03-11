@@ -28,6 +28,7 @@ import { useStore } from 'vuex'
 const store = useStore()
 
 const addFilteredProducts = (filteredProducts) => store.dispatch('addFilteredProduct',filteredProducts);
+const resetPeginationIndex = (value) => store.dispatch('resetPeginationIndex',value);
 const selectedCategories = ref([]);
 const selectedPriceRange = ref('asc');
 const selectedNameSort = ref('');
@@ -53,6 +54,7 @@ const getSearchProducts = async () => {
         const filteredProductList = getAllProducts.value.filter(product => {
            return product.tags.some(tag => selectedCategories.value.includes(tag))
         })
+        resetPeginationIndex(true);
         addFilteredProducts(filteredProductList)
     } else {
         return;
