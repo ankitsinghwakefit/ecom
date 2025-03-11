@@ -52,9 +52,7 @@ const getProductSet = () => {
         updatedIndex = updatedIndex + (productCountIndex.value * 10);
         resetPeginationIndex(false);
       if(updatedIndex > getProductsToRender.value.length) {
-        console.log("disable button")
         isLoadMoreDisabled.value = true;
-        console.log("disable button", isLoadMoreDisabled.value)
         return getProductsToRender.value;
       }
       console.log("updatedIndex", updatedIndex)
