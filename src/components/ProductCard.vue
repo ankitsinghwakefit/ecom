@@ -1,6 +1,6 @@
 <template>
     <div class="products">
-        <div class="product-card" v-for="product in products" :key="product.id">
+        <div class="product-card" v-for="product in getProductSet" :key="product.id">
             <img :src="product.thumbnail" :alt="product.title"  @click="openProductModal(product)" loading="lazy"/>
             <h2 class="product-title" @click="openProductModal(product)">{{ product.title }}</h2>
             <p class="product-description" @click="openProductModal(product)">{{ getDescription(product.description) }}</p>
@@ -29,7 +29,23 @@ const openProductModal = (product) => {
     isModalOpen.value = true;
 }
 const addProductInCart = (product) => store.dispatch('addProductInCart', product)
-const products = computed(() => store.getters.getAllProducts)
+const allProducts = computed(() => store.getters.getAllProducts)
+const productCountIndex = ref(0);
+const getProductSet = computed(() => {
+    if(getProductsToRender.value.length<10){
+        return getProductsToRender.value;
+    } else {
+        return getProductsToRender.value.slice(0,10);
+    }
+})
+const filteredProducts = computed(() => store.getters.getAllFilteredProducts)
+const getProductsToRender = computed(() => {
+    if(filteredProducts.value.length > 0){
+        return filteredProducts.value
+    } else {
+        return allProducts.value;
+    }
+})
 const getDescription = ((description)=> {
     return description.substring(0,70) + '...';
 })

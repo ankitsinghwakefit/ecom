@@ -7,3 +7,9 @@
 import NavBar from './components/NavBar.vue';
 import { RouterView } from 'vue-router'
 </script>
+
+<style>
+body{
+  background-color: aliceblue;
+}
+</style>

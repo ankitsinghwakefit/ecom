@@ -7,8 +7,8 @@
                 <div class="dropdown">
                     <button class="dropbtn">Categories</button>
                     <div class="dropdown-content">
-                        <button v-for="categories in getCategories" :key="categories.slug"
-                            @click="getCategProducts(categories.url)">{{ categories.name }}</button>
+                        <button v-for="categories in getCategories" :key="categories"
+                            @click="getCategProducts(categories)">{{ categories }}</button>
                     </div>
                 </div>
                 <div class="cart-container">
@@ -23,7 +23,6 @@
 
 <script setup>
 import { computed } from 'vue'
-import axios from 'axios';
 import { RouterLink } from 'vue-router'
 import { useStore } from 'vuex'
 
@@ -31,7 +30,7 @@ const store = useStore()
 const cartProductsCount = computed(() => store.getters.getCartProducts.length);
 const getCategories = computed(() => store.getters.getProductCategories);
 const getCategProducts = async (url) => {
-    const products = await axios.get(url);
+    const products = await fetch(url);
     store.dispatch('addProduct', products.data.products)
 }
 </script>

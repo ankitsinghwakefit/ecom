@@ -20,7 +20,6 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue'
 import { useStore } from 'vuex'
-import axios from 'axios';
 const store = useStore()
 import ProductCard from '@/components/ProductCard.vue';
 import FilterCard from '@/components/FilterCard.vue';
@@ -33,9 +32,10 @@ const productLoadingMsg = ref('Please wait we are loading the product...');
 const productLimit = ref(10);
 const skipProduct = ref(10);
 const products = computed(() => store.getters.getAllProducts)
+const filteredProducts = computed(() => store.getters.getAllFilteredProducts)
 const fetchMoreProducts = async () => {
   try {
-    const searchProducts = await axios.get(`https://dummyjson.com/products?limit=${productLimit.value}&skip=${skipProduct.value}`);
+    const searchProducts = await fetch(`https://dummyjson.com/products?limit=${productLimit.value}&skip=${skipProduct.value}`);
     store.dispatch('addMoreProduct', searchProducts.data.products);
     skipProduct.value = skipProduct.value + productLimit.value;
     isErrorMsg.value = ''
@@ -47,7 +47,7 @@ const fetchMoreProducts = async () => {
 const getSearchProducts = async () => {
   try {
     if (searchKey.value.length > 3) {
-      const searchProducts = await axios.get(`https://dummyjson.com/products/search?q=${searchKey.value}`)
+      const searchProducts = await fetch(`https://dummyjson.com/products/search?q=${searchKey.value}`)
       if(searchProducts.data.products.length == 0){
         productLoadingMsg.value = 'No products found with this search key...'
       }
@@ -61,22 +61,32 @@ const getSearchProducts = async () => {
     isErrorMsg.value = message;
   }
 }
+const getProductCategories = (products) => {
+  const categories = [];
+  products.forEach(product => {
+    product?.tags?.forEach(tag => {
+      if(categories.indexOf(tag) >= 0){
+        return
+      } else {
+        categories.push(tag)
+      }
+    })
+  })
+  addProductCategories(categories);
+}
+
 onMounted(async () => {
-  try {
-    // below condition will not fetch data again if coming to products page from cart page
     if(products.value.length > 0){
-      console.log('products already loaded');
       return;
     }
-    const storeProducts = await axios.get('https://dummyjson.com/products?limit=10');
-    const productsCategories = await axios.get('https://dummyjson.com/products/categories')
-    addProducts(storeProducts.data.products);
-    addProductCategories(productsCategories.data)
-    isErrorMsg.value = ''
-  } catch (error) {
-    const message = error.message;
-    isErrorMsg.value = message;
-  }
+    fetch('https://dummyjson.com/products').then(data => data.json()).then((productsData => {
+      addProducts(productsData.products);
+      getProductCategories(productsData.products);
+      isErrorMsg.value = '';
+    })).catch(error => {
+      const message = error.message;
+      isErrorMsg.value = message;
+    })
 })
 </script>
 

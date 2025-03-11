@@ -4,20 +4,28 @@ export default createStore({
   state: () => ({
     products: [],
     cart: [],
+    filteredProducts: [],
     productCategories: [],
-    limit: 30,
-    productsApiCallCount: 1,
+    // peginatedProducts: []
   }),
   getters: {
     getAllProducts: state => state.products,
     getCartProducts: state => state.cart,
+    getAllFilteredProducts : state => state.filteredProducts,
     getCartTotal: (state) => state.cart.reduce((total, item) => total + item.price * item.quantity, 0),
     getProductCategories: state => state.productCategories,
+    // getPeginatedProducts: state => state.peginatedProducts,
   },
   actions: {
     addProduct({ commit }, productsData) {
       commit('ADD_PRODUCT', productsData)
     },
+    addFilteredProduct({ commit }, products) {
+      commit('ADD_FILTERED_PRODUCT', products)
+    },
+    // addPeginatedProducts({ commit }, products) {
+    //   commit('ADD_PEGINATED_PRODUCT', products)
+    // },
     addMoreProduct({ commit }, productsData) {
       commit('ADD_MORE_PRODUCT', productsData)
     },
@@ -41,6 +49,15 @@ export default createStore({
     ADD_PRODUCT(state, productsData) {
       state.products = productsData
     },
+    ADD_FILTERED_PRODUCT(state, productsData) {
+      state.filteredProducts = productsData
+    },
+    // ADD_PEGINATED_PRODUCT(state, productsData) {
+    //   if(state.filteredProducts.length){
+    //     if(state.filteredProducts.length > )
+    //   }
+    //   state.peginatedProducts.push(productsData)
+    // },
     ADD_MORE_PRODUCT(state,data){
       state.products = [...state.products, ...data]
     },

@@ -3,8 +3,8 @@
         <h3>Filter Products</h3>
         <div class="filter-group">
             <h4>Category</h4>
-            <label v-for="categorie in getCategories" :key="categorie.slug"><input type="radio" name="category"
-                    @change="toggleCategory(categorie.slug)"> {{ categorie.name }}</label>
+            <label v-for="categorie in getCategories" :key="categorie"><input type="checkbox" name="category"
+                    @change="toggleCategory(categorie)"> {{ categorie }}</label>
         </div>
 
         <div class="filter-group">
@@ -25,17 +25,22 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
-import axios from 'axios';
 const store = useStore()
 
-// I have used selectedCategories as string as dummyjson.com does not provide any endpoint to search multiple categories
-// it only supports single category at a time otherwise multiple categories can be stored in an array
-const selectedCategories = ref('');
+const addFilteredProducts = (filteredProducts) => store.dispatch('addFilteredProduct',filteredProducts);
+const selectedCategories = ref([]);
 const selectedPriceRange = ref('asc');
 const selectedNameSort = ref('');
 const getCategories = computed(() => store.getters.getProductCategories);
+const getAllProducts = computed(() => store.getters.getAllProducts);
+
 const toggleCategory = (category) => {
-    selectedCategories.value = category;
+    let categoryIndex = selectedCategories.value.indexOf(category);
+    if (categoryIndex > -1) {
+        selectedCategories.value.splice(categoryIndex, 1);
+    } else {
+        selectedCategories.value.push(category);
+    }
 };
 const selectPriceRange = (range) => {
     selectedPriceRange.value = range;
@@ -45,13 +50,10 @@ const selectNameSort = (name) => {
 }
 const getSearchProducts = async () => {
     if (selectedCategories.value.length > 0) {
-        if(selectedNameSort.value){
-            const searchProducts = await axios.get(`https://dummyjson.com/products/category/${selectedCategories.value}?sortBy=${selectedNameSort.value}&order=${selectedPriceRange.value}`)
-            store.dispatch('addProduct', searchProducts.data.products);
-            return;
-        }
-        const searchProducts = await axios.get(`https://dummyjson.com/products/category/${selectedCategories.value}?sortByorder=${selectedPriceRange.value}`)
-        store.dispatch('addProduct', searchProducts.data.products);
+        const filteredProductList = getAllProducts.value.filter(product => {
+           return product.tags.some(tag => selectedCategories.value.includes(tag))
+        })
+        addFilteredProducts(filteredProductList)
     } else {
         return;
     }
