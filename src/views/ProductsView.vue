@@ -2,115 +2,139 @@
   <div class="container">
     <h1>Our Products</h1>
     <div class="search-box">
-      <input type="text" v-model="searchKey" placeholder="Search for products...">
+      <input
+        type="text"
+        v-model="searchKey"
+        placeholder="Search for products..."
+      />
       <button @click="getSearchProducts">Search</button>
     </div>
     <div class="content">
-      <div v-if="isErrorMsg">Error while fetching products, please check your Internet connection...</div>
-      <div v-if="productsForRender.length == 0 && !isErrorMsg">{{ productLoadingMsg }}</div>
+      <div v-if="isErrorMsg">
+        Error while fetching products, please check your Internet connection...
+      </div>
+      <div v-if="productsForRender.length == 0 && !isErrorMsg">
+        {{ productLoadingMsg }}
+      </div>
       <ProductCard :products="productsForRender" />
       <FilterCard @cleanFilteredProducts="cleanFilteredProducts" />
     </div>
-    <div class="load-more-container" v-if="productsForRender.length>0">
-      <button class="load-more-btn" @click="loadMoreProducts" :disabled="isLoadMoreDisabled">{{ buttonLabel }}</button>
+    <div class="load-more-container" v-if="productsForRender.length > 0">
+      <button
+        class="load-more-btn"
+        @click="loadMoreProducts"
+        :disabled="isLoadMoreDisabled"
+      >
+        {{ buttonLabel }}
+      </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref, computed, reactive } from 'vue'
-import { useStore } from 'vuex'
-const store = useStore()
-import ProductCard from '@/components/ProductCard.vue';
-import FilterCard from '@/components/FilterCard.vue';
+import { onMounted, ref, computed, reactive } from "vue";
+import { useStore } from "vuex";
+const store = useStore();
+import ProductCard from "@/components/ProductCard.vue";
+import FilterCard from "@/components/FilterCard.vue";
 
-const searchKey = defineModel()
-const addProducts = (products) => store.dispatch('addProduct', products)
-const addProductCategories = (categories) => store.dispatch('addProductCategories', categories)
-const isErrorMsg = ref('')
-const productLoadingMsg = ref('Please wait we are loading the product...');
-const isLoadMoreDisabled = ref(false)
-const filteredProducts = computed(() => store.getters.getAllFilteredProducts)
-const allProducts = computed(() => store.getters.getAllProducts)
-const isResetPeginationIndex = computed(() => store.getters.getResetPeginationIndex)
-const resetPeginationIndex = (value) => store.dispatch('resetPeginationIndex',value);
+const searchKey = defineModel();
+const addProducts = (products) => store.dispatch("addProduct", products);
+const addProductCategories = (categories) =>
+  store.dispatch("addProductCategories", categories);
+const isErrorMsg = ref("");
+const productLoadingMsg = ref("Please wait we are loading the product...");
+const isLoadMoreDisabled = ref(false);
+const filteredProducts = computed(() => store.getters.getAllFilteredProducts);
+const allProducts = computed(() => store.getters.getAllProducts);
+const isResetPeginationIndex = computed(
+  () => store.getters.getResetPeginationIndex
+);
+const resetPeginationIndex = (value) =>
+  store.dispatch("resetPeginationIndex", value);
 const productCountIndex = ref(0);
-const buttonLabel = computed(()=>{
-  return isLoadMoreDisabled.value ? 'No more product' : 'Load more Products'
-})
+const buttonLabel = computed(() => {
+  return isLoadMoreDisabled.value ? "No more product" : "Load more Products";
+});
 const searchResults = reactive([]);
 const cleanFilteredProducts = () => {
-  console.log("done")
   searchResults.value = [];
-}
-const productsForRender = computed(()=>{
+};
+const productsForRender = computed(() => {
   return searchResults.value?.length ? searchResults.value : getProductSet();
-})
+});
 const getProductSet = () => {
-  if(!getProductsToRender.value.length){
+  if (!getProductsToRender.value.length) {
     return [];
-  } else if(getProductsToRender.value.length<10){
+  } else if (getProductsToRender.value.length < 10) {
+    isLoadMoreDisabled.value = true;
+    return getProductsToRender.value;
+  } else {
+    if (isResetPeginationIndex.value) {
+      productCountIndex.value = 0;
+    }
+    let updatedIndex =
+      productCountIndex.value === 0 ? 10 : productCountIndex.value * 10;
+    updatedIndex = updatedIndex + productCountIndex.value * 10;
+    resetPeginationIndex(false);
+    if (updatedIndex > getProductsToRender.value.length) {
       isLoadMoreDisabled.value = true;
-        return getProductsToRender.value;
-    } else {
-      if(isResetPeginationIndex.value){
-        productCountIndex.value = 0;
-      }
-      let updatedIndex = productCountIndex.value === 0 ? 10 : productCountIndex.value*10;
-        updatedIndex = updatedIndex + (productCountIndex.value * 10);
-        resetPeginationIndex(false);
-      if(updatedIndex > getProductsToRender.value.length) {
-        isLoadMoreDisabled.value = true;
-        return getProductsToRender.value;
-      }
-      console.log("updatedIndex", updatedIndex)
-      isLoadMoreDisabled.value = false;
-      return getProductsToRender.value.slice(0,updatedIndex);
+      return getProductsToRender.value;
     }
-}
+    isLoadMoreDisabled.value = false;
+    return getProductsToRender.value.slice(0, updatedIndex);
+  }
+};
 const getProductsToRender = computed(() => {
-    if(filteredProducts.value.length > 0){
-        return filteredProducts.value
-    } else {
-        return allProducts.value;
-    }
-})
+  if (filteredProducts.value.length > 0) {
+    return filteredProducts.value;
+  } else {
+    return allProducts.value;
+  }
+});
 const loadMoreProducts = () => {
   productCountIndex.value += 1;
   getProductSet();
-}
+};
 const getSearchProducts = () => {
-  searchResults.value = getProductsToRender.value.filter(product => {
-    return product.title.toLowerCase().includes(searchKey.value.toLowerCase())
-  })
-}
+  if (searchKey.value.length < 2) {
+    return;
+  }
+  searchResults.value = getProductsToRender.value.filter((product) => {
+    return product.title.toLowerCase().includes(searchKey.value.toLowerCase());
+  });
+  searchKey.value = "";
+};
 const getProductCategories = (products) => {
   const categories = [];
-  products.forEach(product => {
-    product?.tags?.forEach(tag => {
-      if(categories.indexOf(tag) >= 0){
-        return
+  products.forEach((product) => {
+    product?.tags?.forEach((tag) => {
+      if (categories.indexOf(tag) >= 0) {
+        return;
       } else {
-        categories.push(tag)
+        categories.push(tag);
       }
-    })
-  })
+    });
+  });
   addProductCategories(categories);
-}
+};
 
 onMounted(async () => {
-    if(getProductSet().length > 0){
-      return;
-    }
-    fetch('https://dummyjson.com/products').then(data => data.json()).then((productsData => {
+  if (getProductSet().length > 0) {
+    return;
+  }
+  fetch("https://dummyjson.com/products")
+    .then((data) => data.json())
+    .then((productsData) => {
       addProducts(productsData.products);
       getProductCategories(productsData.products);
-      isErrorMsg.value = '';
-    })).catch(error => {
+      isErrorMsg.value = "";
+    })
+    .catch((error) => {
       const message = error.message;
       isErrorMsg.value = message;
-    })
-})
+    });
+});
 </script>
 
 <style scoped>
@@ -200,7 +224,6 @@ h1 {
   border-radius: 5px;
   transition: 0.3s ease;
 }
-
 
 @media (max-width: 768px) {
   .content {

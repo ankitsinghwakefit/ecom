@@ -54,7 +54,6 @@ export default createStore({
     },
     SET_PEGINATION_INDEX(state, value) {
       state.resetPeginationIndex = value;
-      console.log("state.resetPeginationIndex",state.resetPeginationIndex)
     },
     ADD_MORE_PRODUCT(state,data){
       state.products = [...state.products, ...data]
