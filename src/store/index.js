@@ -6,7 +6,7 @@ export default createStore({
     cart: [],
     filteredProducts: [],
     productCategories: [],
-    // peginatedProducts: []
+    resetPeginationIndex: false
   }),
   getters: {
     getAllProducts: state => state.products,
@@ -14,7 +14,7 @@ export default createStore({
     getAllFilteredProducts : state => state.filteredProducts,
     getCartTotal: (state) => state.cart.reduce((total, item) => total + item.price * item.quantity, 0),
     getProductCategories: state => state.productCategories,
-    // getPeginatedProducts: state => state.peginatedProducts,
+    getResetPeginationIndex: state => state.resetPeginationIndex,
   },
   actions: {
     addProduct({ commit }, productsData) {
@@ -23,9 +23,9 @@ export default createStore({
     addFilteredProduct({ commit }, products) {
       commit('ADD_FILTERED_PRODUCT', products)
     },
-    // addPeginatedProducts({ commit }, products) {
-    //   commit('ADD_PEGINATED_PRODUCT', products)
-    // },
+    resetPeginationIndex({ commit }, value) {
+      commit('SET_PEGINATION_INDEX', value)
+    },
     addMoreProduct({ commit }, productsData) {
       commit('ADD_MORE_PRODUCT', productsData)
     },
@@ -52,12 +52,10 @@ export default createStore({
     ADD_FILTERED_PRODUCT(state, productsData) {
       state.filteredProducts = productsData
     },
-    // ADD_PEGINATED_PRODUCT(state, productsData) {
-    //   if(state.filteredProducts.length){
-    //     if(state.filteredProducts.length > )
-    //   }
-    //   state.peginatedProducts.push(productsData)
-    // },
+    SET_PEGINATION_INDEX(state, value) {
+      state.resetPeginationIndex = value;
+      console.log("state.resetPeginationIndex",state.resetPeginationIndex)
+    },
     ADD_MORE_PRODUCT(state,data){
       state.products = [...state.products, ...data]
     },
