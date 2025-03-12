@@ -4,13 +4,6 @@
             <nav class="navbar">
                 <h1>VENIA</h1>
                 <RouterLink to="/">Products</RouterLink>
-                <div class="dropdown">
-                    <button class="dropbtn">Categories</button>
-                    <div class="dropdown-content">
-                        <button v-for="categories in getCategories" :key="categories"
-                            @click="getCategProducts(categories)">{{ categories }}</button>
-                    </div>
-                </div>
                 <div class="cart-container">
                     <router-link to="/cart">
                         🛒 <span v-if="cartProductsCount > 0">({{ cartProductsCount }})</span>
@@ -29,10 +22,6 @@ import { useStore } from 'vuex'
 const store = useStore()
 const cartProductsCount = computed(() => store.getters.getCartProducts.length);
 const getCategories = computed(() => store.getters.getProductCategories);
-const getCategProducts = async (url) => {
-    const products = await fetch(url);
-    store.dispatch('addProduct', products.data.products)
-}
 </script>
 
 <style scoped>

@@ -34,6 +34,9 @@
     <button class="apply-filter" @click="getSearchProducts">
       Apply Filter
     </button>
+    <button class="apply-filter" @click="clearSearchProducts">
+      Clear Filter
+    </button>
   </aside>
 </template>
 
@@ -70,10 +73,10 @@ const getSearchProducts = async () => {
       return product.tags.some((tag) => selectedCategories.value.includes(tag));
     });
     if (priceSortOrder.value) {
-      filteredProductList.sort((a, b) => {
+      filteredProductList.sort((productOne, productTwo) => {
         return priceSortOrder.value === "asc"
-          ? a.price - b.price
-          : b.price - a.price;
+          ?  productOne.price - productTwo.price
+          : productTwo.price - productOne.price;
       });
     }
     resetPeginationIndex(true);
@@ -83,6 +86,10 @@ const getSearchProducts = async () => {
     return;
   }
 };
+
+const clearSearchProducts = () => {
+  addFilteredProducts([]);
+}
 </script>
 
 <style scoped>
@@ -120,6 +127,7 @@ const getSearchProducts = async () => {
   cursor: pointer;
   width: 100%;
   border-radius: 5px;
+  margin-bottom: 10px;
 }
 
 .apply-filter:hover {
